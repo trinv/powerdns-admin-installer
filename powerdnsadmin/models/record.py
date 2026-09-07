@@ -5,8 +5,17 @@ import dns.inet
 import dns.name
 from flask import current_app
 from urllib.parse import urljoin
-from distutils.util import strtobool
 from itertools import groupby
+
+
+def strtobool(value):
+    """Compatibility replacement for the removed distutils.util.strtobool."""
+    normalized = str(value).lower()
+    if normalized in ('y', 'yes', 't', 'true', 'on', '1'):
+        return 1
+    if normalized in ('n', 'no', 'f', 'false', 'off', '0'):
+        return 0
+    raise ValueError(f"invalid truth value {value!r}")
 
 from .. import utils
 from .base import db

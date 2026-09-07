@@ -4,9 +4,18 @@ import traceback
 from flask import current_app
 from flask_login import current_user
 from urllib.parse import urljoin
-from distutils.util import strtobool
 
 from ..lib import utils
+
+
+def strtobool(value):
+    """Compatibility replacement for the removed distutils.util.strtobool."""
+    normalized = str(value).lower()
+    if normalized in ('y', 'yes', 't', 'true', 'on', '1'):
+        return 1
+    if normalized in ('n', 'no', 'f', 'false', 'off', '0'):
+        return 0
+    raise ValueError(f"invalid truth value {value!r}")
 from .base import db, domain_apikey
 from .setting import Setting
 from .user import User
