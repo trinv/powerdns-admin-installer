@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard · PowerDNS Admin Demo</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/source_sans_pro.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='custom/css/adminator-theme.css') }}">
+  <style>
+    :root { --demo-sidebar: #24283a; }
+    body { min-height: 100vh; overflow-x: hidden; }
+    .demo-shell { min-height: 100vh; display: flex; }
+    .demo-sidebar { width: 250px; flex: 0 0 250px; background: var(--demo-sidebar); color: #aab0c6; transition: width .2s ease; }
+    .demo-sidebar.is-collapsed { width: 76px; flex-basis: 76px; }
+    .demo-sidebar.is-collapsed .demo-label, .demo-sidebar.is-collapsed .demo-brand-name, .demo-sidebar.is-collapsed .demo-section { display: none; }
+    .demo-sidebar.is-collapsed .demo-nav-link { justify-content: center; }
+    .demo-sidebar.is-collapsed .demo-nav-link i { margin: 0; }
+    .demo-brand { height: 72px; padding: 0 22px; display: flex; align-items: center; gap: 12px; color: #fff; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .demo-brand-mark { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; background: #4b7cf3; color: white; font-weight: 700; }
+    .demo-user { display: flex; align-items: center; gap: 11px; padding: 22px; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .demo-avatar { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: #e9edff; color: #4b7cf3; font-weight: 700; }
+    .demo-section { padding: 22px 22px 8px; color: #6b7290; font-size: 11px; text-transform: uppercase; letter-spacing: .12em; }
+    .demo-nav { padding: 0 12px; }
+    .demo-nav-link { display: flex; align-items: center; gap: 13px; padding: 12px 13px; margin: 3px 0; color: #aab0c6; border-radius: 8px; text-decoration: none; font-size: 14px; }
+    .demo-nav-link:hover, .demo-nav-link.active { color: white; background: #333748; }
+    .demo-nav-link.active { box-shadow: inset 3px 0 #4b7cf3; }
+    .demo-nav-link i { width: 20px; text-align: center; color: #8991ad; }
+    .demo-nav-link.active i { color: #4b7cf3; }
+    .demo-main { min-width: 0; flex: 1; }
+    .demo-topbar { height: 72px; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; background: #fff; border-bottom: 1px solid #eaedf3; }
+    .demo-icon-button { border: 0; background: transparent; color: #9aa0b4; font-size: 18px; padding: 9px; cursor: pointer; }
+    .demo-breadcrumb { color: #9aa0b4; font-size: 13px; }
+    .demo-breadcrumb strong { color: #3b3f5c; }
+    .demo-top-actions { display: flex; align-items: center; gap: 18px; }
+    .demo-notification { position: relative; }
+    .demo-notification::after { content: ''; position: absolute; width: 7px; height: 7px; right: 5px; top: 5px; background: #ff5c6c; border: 2px solid white; border-radius: 50%; }
+    .demo-main-content { padding: 32px; }
+    .demo-heading { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 28px; }
+    .demo-eyebrow { color: #4b7cf3; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .1em; }
+    .demo-heading h1 { margin: 4px 0 0; font-size: 28px; }
+    .demo-heading p { margin: 6px 0 0; color: #9aa0b4; }
+    .demo-date { color: #9aa0b4; font-size: 13px; }
+    .demo-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; margin-bottom: 22px; }
+    .demo-kpi { padding: 20px; background: #fff; border: 1px solid #eaedf3; border-radius: 12px; box-shadow: 0 6px 18px rgba(59,63,92,.06); }
+    .demo-kpi-top { display: flex; justify-content: space-between; color: #9aa0b4; font-size: 13px; }
+    .demo-kpi-icon { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 9px; background: #edf2ff; color: #4b7cf3; }
+    .demo-kpi strong { display: block; margin-top: 15px; color: #3b3f5c; font-size: 28px; }
+    .demo-kpi-trend { margin-top: 9px; color: #2ed8b6; font-size: 12px; }
+    .demo-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(280px, .9fr); gap: 22px; }
+    .demo-panel { background: #fff; border: 1px solid #eaedf3; border-radius: 12px; box-shadow: 0 6px 18px rgba(59,63,92,.06); overflow: hidden; }
+    .demo-panel-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 22px; border-bottom: 1px solid #eaedf3; }
+    .demo-panel-header h2 { margin: 0; font-size: 17px; }
+    .demo-panel-header span { color: #9aa0b4; font-size: 12px; }
+    .demo-table-wrap { overflow-x: auto; }
+    .demo-table { width: 100%; border-collapse: collapse; }
+    .demo-table th, .demo-table td { padding: 14px 22px; text-align: left; border-bottom: 1px solid #f0f2f6; white-space: nowrap; }
+    .demo-table th { color: #9aa0b4; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+    .demo-table td { color: #5f6580; font-size: 13px; }
+    .demo-table tr:last-child td { border-bottom: 0; }
+    .demo-zone { color: #3b3f5c; font-weight: 700; }
+    .demo-badge { display: inline-flex; align-items: center; padding: 5px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .demo-badge.success { color: #168d77; background: #e4faf5; }
+    .demo-badge.warning { color: #b47511; background: #fff4df; }
+    .demo-badge.neutral { color: #69728c; background: #f0f2f6; }
+    .demo-health { padding: 22px; }
+    .demo-health-row { display: flex; align-items: center; gap: 13px; padding: 14px 0; border-bottom: 1px solid #f0f2f6; }
+    .demo-health-row:last-child { border-bottom: 0; }
+    .demo-health-status { width: 9px; height: 9px; border-radius: 50%; background: #2ed8b6; box-shadow: 0 0 0 4px #e4faf5; }
+    .demo-health-copy { flex: 1; }
+    .demo-health-copy strong { display: block; color: #3b3f5c; font-size: 13px; }
+    .demo-health-copy span { color: #9aa0b4; font-size: 12px; }
+    .demo-health-value { color: #3b3f5c; font-size: 13px; font-weight: 700; }
+    .demo-activity { margin-top: 22px; }
+    .demo-activity-list { padding: 8px 22px 18px; }
+    .demo-activity-item { display: flex; gap: 13px; padding: 14px 0; }
+    .demo-activity-dot { flex: 0 0 8px; width: 8px; height: 8px; margin-top: 6px; border-radius: 50%; background: #4b7cf3; }
+    .demo-activity-item p { margin: 0; color: #5f6580; font-size: 13px; }
+    .demo-activity-item time { display: block; margin-top: 4px; color: #9aa0b4; font-size: 11px; }
+    .demo-search { width: 190px; border: 1px solid #eaedf3; border-radius: 8px; padding: 8px 11px; outline: none; font-size: 12px; }
+    .demo-search:focus { border-color: #4b7cf3; box-shadow: 0 0 0 3px #edf2ff; }
+    @media (max-width: 980px) { .demo-kpis { grid-template-columns: repeat(2, 1fr); } .demo-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 680px) { .demo-sidebar { width: 76px; flex-basis: 76px; } .demo-label, .demo-brand-name, .demo-section, .demo-user-copy { display: none; } .demo-nav-link { justify-content: center; } .demo-nav-link i { margin: 0; } .demo-topbar, .demo-main-content { padding-left: 18px; padding-right: 18px; } .demo-heading { align-items: start; flex-direction: column; } }
+  </style>
+</head>
+<body>
+  <div class="demo-shell">
+    <aside class="demo-sidebar" id="demo-sidebar">
+      <a class="demo-brand" href="/demo"><span class="demo-brand-mark">P</span><strong class="demo-brand-name">PowerDNS Admin</strong></a>
+      <div class="demo-user"><span class="demo-avatar">AD</span><div class="demo-user-copy"><strong class="demo-label">Admin User</strong><small class="demo-label">Administrator</small></div></div>
+      <div class="demo-section">Overview</div>
+      <nav class="demo-nav">
+        <a class="demo-nav-link active" href="#"><i class="fa-solid fa-chart-line"></i><span class="demo-label">Dashboard</span></a>
+        <a class="demo-nav-link" href="#zones"><i class="fa-solid fa-globe"></i><span class="demo-label">DNS Zones</span></a>
+        <a class="demo-nav-link" href="#activity"><i class="fa-solid fa-clock-rotate-left"></i><span class="demo-label">Activity Log</span></a>
+      </nav>
+      <div class="demo-section">Administration</div>
+      <nav class="demo-nav">
+        <a class="demo-nav-link" href="#"><i class="fa-solid fa-users"></i><span class="demo-label">Users & Accounts</span></a>
+        <a class="demo-nav-link" href="#"><i class="fa-solid fa-layer-group"></i><span class="demo-label">Zone Templates</span></a>
+        <a class="demo-nav-link" href="#"><i class="fa-solid fa-server"></i><span class="demo-label">Server Settings</span></a>
+      </nav>
+    </aside>
+    <main class="demo-main">
+      <header class="demo-topbar"><div class="demo-top-actions"><button class="demo-icon-button" id="sidebar-toggle" aria-label="Toggle sidebar"><i class="fa-solid fa-bars"></i></button><div class="demo-breadcrumb"><strong>Dashboard</strong><span> / Overview</span></div></div><div class="demo-top-actions"><button class="demo-icon-button demo-notification" aria-label="Notifications"><i class="fa-regular fa-bell"></i></button><span class="demo-avatar">AD</span></div></header>
+      <section class="demo-main-content">
+        <div class="demo-heading"><div><div class="demo-eyebrow">PowerDNS control center</div><h1>Dashboard overview</h1><p>Monitor your DNS infrastructure and manage zones from one place.</p></div><div class="demo-date">Monday, September 7, 2026</div></div>
+        <div class="demo-kpis">
+          <article class="demo-kpi"><div class="demo-kpi-top"><span>Total zones</span><span class="demo-kpi-icon"><i class="fa-solid fa-globe"></i></span></div><strong>248</strong><div class="demo-kpi-trend">+12 this month</div></article>
+          <article class="demo-kpi"><div class="demo-kpi-top"><span>DNS records</span><span class="demo-kpi-icon"><i class="fa-solid fa-list"></i></span></div><strong>4,892</strong><div class="demo-kpi-trend">+8.4% from last month</div></article>
+          <article class="demo-kpi"><div class="demo-kpi-top"><span>Active users</span><span class="demo-kpi-icon"><i class="fa-solid fa-users"></i></span></div><strong>36</strong><div class="demo-kpi-trend">+3 new users</div></article>
+          <article class="demo-kpi"><div class="demo-kpi-top"><span>Server uptime</span><span class="demo-kpi-icon"><i class="fa-solid fa-heart-pulse"></i></span></div><strong>99.98%</strong><div class="demo-kpi-trend">All systems operational</div></article>
+        </div>
+        <div class="demo-grid" id="zones">
+          <section class="demo-panel"><div class="demo-panel-header"><div><h2>DNS zones</h2><span>Recently managed domains</span></div><input class="demo-search" id="zone-search" type="search" placeholder="Search zones" aria-label="Search zones"></div><div class="demo-table-wrap"><table class="demo-table"><thead><tr><th>Zone name</th><th>Type</th><th>DNSSEC</th><th>Records</th><th>Status</th></tr></thead><tbody id="zone-rows"><tr><td class="demo-zone">example.com</td><td>Master</td><td><span class="demo-badge success">Enabled</span></td><td>42</td><td><span class="demo-badge success">Healthy</span></td></tr><tr><td class="demo-zone">acme.io</td><td>Master</td><td><span class="demo-badge success">Enabled</span></td><td>28</td><td><span class="demo-badge success">Healthy</span></td></tr><tr><td class="demo-zone">northwind.dev</td><td>Slave</td><td><span class="demo-badge neutral">Not enabled</span></td><td>16</td><td><span class="demo-badge success">Healthy</span></td></tr><tr><td class="demo-zone">internal.lan</td><td>Master</td><td><span class="demo-badge warning">Pending</span></td><td>67</td><td><span class="demo-badge warning">Review</span></td></tr><tr><td class="demo-zone">demo.net</td><td>Master</td><td><span class="demo-badge success">Enabled</span></td><td>31</td><td><span class="demo-badge success">Healthy</span></td></tr></tbody></table></div></section>
+          <section class="demo-panel"><div class="demo-panel-header"><div><h2>Server health</h2><span>PowerDNS cluster status</span></div><span class="demo-badge success">Operational</span></div><div class="demo-health"><div class="demo-health-row"><span class="demo-health-status"></span><div class="demo-health-copy"><strong>Authoritative DNS</strong><span>PowerDNS 4.9.2</span></div><span class="demo-health-value">48 ms</span></div><div class="demo-health-row"><span class="demo-health-status"></span><div class="demo-health-copy"><strong>Database</strong><span>PostgreSQL primary</span></div><span class="demo-health-value">12 ms</span></div><div class="demo-health-row"><span class="demo-health-status"></span><div class="demo-health-copy"><strong>DNSSEC signer</strong><span>Ready and synced</span></div><span class="demo-health-value">100%</span></div><div class="demo-health-row"><span class="demo-health-status"></span><div class="demo-health-copy"><strong>Last sync</strong><span id="last-sync">Just now</span></div><span class="demo-health-value"><button class="btn btn-sm btn-link p-0" id="refresh-demo">Refresh</button></span></div></div></section>
+        </div>
+        <section class="demo-panel demo-activity" id="activity"><div class="demo-panel-header"><div><h2>Recent activity</h2><span>Simulated events for this preview</span></div><span>View all</span></div><div class="demo-activity-list"><div class="demo-activity-item"><span class="demo-activity-dot"></span><div><p><strong>Admin User</strong> updated DNSSEC settings for <strong>example.com</strong></p><time>8 minutes ago</time></div></div><div class="demo-activity-item"><span class="demo-activity-dot"></span><div><p><strong>Maria Chen</strong> created a new zone <strong>northwind.dev</strong></p><time>42 minutes ago</time></div></div><div class="demo-activity-item"><span class="demo-activity-dot"></span><div><p>PowerDNS cluster synchronization completed successfully</p><time>Today at 09:12</time></div></div></div></section>
+      </section>
+    </main>
+  </div>
+  <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
+  <script src="{{ url_for('static', filename='custom/js/demo.js') }}"></script>
+</body>
+</html>
