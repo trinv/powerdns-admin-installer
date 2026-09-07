@@ -13,6 +13,7 @@ css_login = Bundle(
     'node_modules/@fortawesome/fontawesome-free/css/all.css',
     'node_modules/icheck/skins/square/blue.css',
     'node_modules/admin-lte/dist/css/adminlte.css',
+    'custom/css/login-theme.css',
     filters=('rcssmin', 'cssrewrite'),
     output='generated/login.css')
 
@@ -37,6 +38,7 @@ css_main = Bundle(
     'node_modules/admin-lte/dist/css/adminlte.css',
     'custom/css/custom.css',
     'node_modules/bootstrap-datepicker/dist/css/bootstrap-datepicker.css',
+    'custom/css/adminator-theme.css',
     filters=('rcssmin', 'cssrewrite'),
     output='generated/main.css')
 
