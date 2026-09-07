@@ -7,8 +7,17 @@ import ipaddress
 import base64
 import string
 from zxcvbn import zxcvbn
-from distutils.util import strtobool
 from yaml import Loader, load
+
+
+def strtobool(value):
+    """Compatibility replacement for the removed distutils.util.strtobool."""
+    normalized = str(value).lower()
+    if normalized in ('y', 'yes', 't', 'true', 'on', '1'):
+        return 1
+    if normalized in ('n', 'no', 'f', 'false', 'off', '0'):
+        return 0
+    raise ValueError(f"invalid truth value {value!r}")
 from flask import Blueprint, render_template, make_response, url_for, current_app, g, session, request, redirect, abort
 from flask_login import login_user, logout_user, login_required, current_user
 

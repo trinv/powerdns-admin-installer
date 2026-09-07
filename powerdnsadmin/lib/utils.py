@@ -6,8 +6,36 @@ import ipaddress
 import idna
 
 from collections.abc import Iterable
-from distutils.version import StrictVersion
+from packaging.version import Version
 from urllib.parse import urlparse
+
+
+class StrictVersion:
+    """Compatibility wrapper for the removed distutils.version.StrictVersion."""
+
+    def __init__(self, version):
+        self._version = Version(str(version))
+
+    def __ge__(self, other):
+        return self._version >= other._version
+
+    def __gt__(self, other):
+        return self._version > other._version
+
+    def __le__(self, other):
+        return self._version <= other._version
+
+    def __lt__(self, other):
+        return self._version < other._version
+
+    def __eq__(self, other):
+        return isinstance(other, StrictVersion) and self._version == other._version
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __str__(self):
+        return str(self._version)
 
 
 def auth_from_url(url):
