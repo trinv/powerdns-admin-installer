@@ -1,7 +1,21 @@
 import datetime
 import hashlib
-import imghdr
 import mimetypes
+
+
+def detect_image_type(content):
+    """Return an image extension using standard file signatures."""
+    signatures = (
+        (b'\xff\xd8\xff', 'jpeg'),
+        (b'\x89PNG\r\n\x1a\n', 'png'),
+        (b'GIF87a', 'gif'),
+        (b'GIF89a', 'gif'),
+        (b'RIFF', 'webp'),
+    )
+    for signature, image_type in signatures:
+        if content.startswith(signature):
+            return image_type
+    return None
 
 from flask import Blueprint, request, render_template, make_response, jsonify, redirect, url_for, g, session, \
     current_app, after_this_request, abort
@@ -138,7 +152,8 @@ def image():
     def return_image(content, content_type=None):
         """Return the given binary image content. Guess the type if not given."""
         if not content_type:
-            guess = mimetypes.guess_type('example.' + imghdr.what(None, h=content))
+            image_type = detect_image_type(content)
+            guess = mimetypes.guess_type('example.' + image_type) if image_type else (None, None)
             if guess and guess[0]:
                 content_type = guess[0]
 
